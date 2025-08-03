@@ -1,0 +1,194 @@
+% ============================================
+% COLECCIÓN COMPLETA DE 12 EJERCICIOS ASP
+% Archivo único ejecutable con todos los ejemplos
+% Para ejecutar: clingo ejercicios_asp.lp
+% ============================================
+
+% ============================================
+% EJERCICIO 1: TEMPERATURAS - CLASIFICACIÓN DE CLIMA
+% ============================================
+
+% Temperaturas de ciudades mexicanas
+temperatura(cdmx, 24).
+temperatura(puebla, 24).
+temperatura(leon, 25).
+temperatura(san_luis_potosi, 27).
+temperatura(aguascalientes, 25).
+temperatura(guadalajara, 25).
+temperatura(monterrey, 36).
+temperatura(ciudad_juarez, 29).
+
+% Reglas de clasificación: templado < 25, cálido >= 25
+clima_templado(Ciudad) :- temperatura(Ciudad, Temp), Temp < 25.
+clima_calido(Ciudad) :- temperatura(Ciudad, Temp), Temp >= 25.
+
+% ============================================
+% EJERCICIO 2: REGLA PADRE-HIJO
+% ============================================
+
+% Hechos padre originales
+padre(ana, juan).
+padre(juan, karina).
+padre(juan, dany).
+
+% Regla: hijo(X,Y) :- padre(Y,X)
+hijo(X, Y) :- padre(Y, X).
+
+% ============================================
+% EJERCICIO 3: ARITMÉTICO 1 - p(N, N * N + N + 41):- N=0...10
+% ============================================
+
+aritmetico1(N, N * N + N + 41) :- N = 0..10.
+
+% ============================================
+% EJERCICIO 4: ARITMÉTICO 2 - p(N, N * N + N + 41):- N+1=1...11
+% ============================================
+
+aritmetico2(N, N * N + N + 41) :- N + 1 = 1..11.
+
+% ============================================
+% EJERCICIO 5: ARITMÉTICO 3 - p(N, N * N + N + 41):- N=10...10, N>=0
+% ============================================
+
+aritmetico3(N, N * N + N + 41) :- N = 10..10, N >= 0.
+
+% ============================================
+% EJERCICIO 6: PADRE Y MADRE - parent(X,Y) definido por father y mother
+% ============================================
+
+% Hechos base
+father(juan, maria).
+mother(pedro, ana).
+
+% Reglas: parent se define como unión de father y mother
+parent(X, Y) :- father(X, Y).
+parent(X, Y) :- mother(X, Y).
+
+% ============================================
+% EJERCICIO 7: NÚMEROS PRIMOS
+% ============================================
+
+#const max_primo = 10.
+
+% Define composite numbers
+compuesto(N) :- N = 1..max_primo, I = 2..N-1, N / I == 0.
+
+% Define prime numbers
+primo(N) :- N = 2..max_primo, not compuesto(N).
+
+% ============================================
+% EJERCICIO 8: FACTORIAL
+% ============================================
+
+#const max_fact = 10.
+
+% Caso base: 0! = 1
+factorial(0, 1).
+
+% Caso recursivo: N! = N * (N-1)!
+factorial(N, N * F) :- N = 1..max_fact, factorial(N-1, F).
+
+% ============================================
+% EJERCICIO 9: MODELO ESTABLE 1 - Agregados de cardinalidad
+% ============================================
+
+1{modelo1_p(1..10)}.
+3{modelo1_elected(ann; bob; carol; dan; elaine; fred)}3.
+
+% ============================================
+% EJERCICIO 10: MODELO ESTABLE 2 - Sistema de agregados
+% ============================================
+
+1{modelo2_p; modelo2_q}1.
+1{modelo2_q; modelo2_r}1.
+
+% ============================================
+% EJERCICIO 11: MODELO ESTABLE 3 - Negación como falla
+% ============================================
+
+modelo3_p(1, 1).
+modelo3_q(X) :- X = 1..2, not modelo3_p(X, _).
+
+% ============================================
+% EJERCICIO 12: TIC-TAC-TOE (GATO)
+% ============================================
+
+posicion_gato(1,1). posicion_gato(1,2). posicion_gato(1,3).
+posicion_gato(2,1). posicion_gato(2,2). posicion_gato(2,3).
+posicion_gato(3,1). posicion_gato(3,2). posicion_gato(3,3).
+
+jugador_gato(x). jugador_gato(o).
+
+juega_gato(x, 1, 1). juega_gato(o, 1, 2).
+juega_gato(o, 2, 1). juega_gato(x, 2, 2).
+juega_gato(x, 3, 3).
+
+gana_fila_gato(Jugador, Fila) :- 
+    jugador_gato(Jugador),
+    Fila = 1..3,
+    juega_gato(Jugador, Fila, 1),
+    juega_gato(Jugador, Fila, 2),
+    juega_gato(Jugador, Fila, 3).
+
+gana_columna_gato(Jugador, Col) :- 
+    jugador_gato(Jugador),
+    Col = 1..3,
+    juega_gato(Jugador, 1, Col),
+    juega_gato(Jugador, 2, Col),
+    juega_gato(Jugador, 3, Col).
+
+gana_diagonal_principal_gato(Jugador) :- 
+    jugador_gato(Jugador),
+    juega_gato(Jugador, 1, 1),
+    juega_gato(Jugador, 2, 2),
+    juega_gato(Jugador, 3, 3).
+
+gana_diagonal_secundaria_gato(Jugador) :- 
+    jugador_gato(Jugador),
+    juega_gato(Jugador, 1, 3),
+    juega_gato(Jugador, 2, 2),
+    juega_gato(Jugador, 3, 1).
+
+ganador_gato(Jugador) :- gana_fila_gato(Jugador, _).
+ganador_gato(Jugador) :- gana_columna_gato(Jugador, _).
+ganador_gato(Jugador) :- gana_diagonal_principal_gato(Jugador).
+ganador_gato(Jugador) :- gana_diagonal_secundaria_gato(Jugador).
+
+tablero_lleno_gato :- 
+    9 { juega_gato(_, I, J) : posicion_gato(I, J) } 9.
+
+empate_gato :- 
+    tablero_lleno_gato,
+    not ganador_gato(_).
+
+juego_en_progreso_gato :- 
+    not ganador_gato(_),
+    not tablero_lleno_gato.
+
+#show clima_templado/1.
+#show clima_calido/1.
+#show padre/2.
+#show hijo/2.
+#show aritmetico1/2.
+#show aritmetico2/2.
+#show aritmetico3/2.
+#show father/2.
+#show mother/2.
+#show parent/2.
+#show primo/1.
+#show factorial/2.
+#show modelo1_p/1.
+#show modelo1_elected/1.
+#show modelo2_p/0.
+#show modelo2_q/0.
+#show modelo2_r/0.
+#show modelo3_p/2.
+#show modelo3_q/1.
+#show ganador_gato/1.
+#show gana_diagonal_principal_gato/1.
+#show gana_fila_gato/2.
+#show gana_columna_gato/2.
+#show gana_diagonal_secundaria_gato/1.
+#show empate_gato/0.
+#show juego_en_progreso_gato/0.
+#show juega_gato/3.
